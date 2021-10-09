@@ -10,7 +10,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using dotnet_identity_sample.Extensions;
+using dotnet_identity_sample.Data;
 
 namespace dotnet_identity_sample
 {
@@ -26,12 +29,29 @@ namespace dotnet_identity_sample
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services
+                .AddDbContext<ApplicationDbContext>(options =>
+                    options
+                        .UseSqlite(Configuration
+                            .GetConnectionString("DefaultConnection")));
 
             services.AddControllers();
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "dotnet_identity_sample", Version = "v1" });
-            });
+            services.AddIdentityServices(Configuration);
+
+            services
+                .AddCors(opt =>
+                {
+                    opt
+                        .AddDefaultPolicy(policy =>
+                        {
+                            policy
+                                .AllowAnyMethod()
+                                .AllowAnyHeader()
+                                .WithOrigins(new string[] {
+                                    "http://localhost:3000"
+                                });
+                        });
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -40,20 +60,29 @@ namespace dotnet_identity_sample
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "dotnet_identity_sample v1"));
+            }
+            else
+            {
+                app.UseExceptionHandler("/Error");
+
+                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                app.UseHsts();
             }
 
             app.UseHttpsRedirection();
 
             app.UseRouting();
 
+            app.UseCors();
+
+            app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
+            app
+                .UseEndpoints(endpoints =>
+                {
+                    endpoints.MapControllers();
+                });
         }
     }
 }
