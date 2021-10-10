@@ -28,6 +28,12 @@ steps:
     command: 'publish'
     publishWebProjects: true
     arguments: '--configuration $(BuildConfiguration) --output "$(build.artifactstagingdirectory)"'
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: 'Copy Database File'
+    Contents: '**\*.db'
+    TargetFolder: '$(build.artifactstagingdirectory)'
+    flattenFolders: true
 - task: PublishBuildArtifacts@1
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
