@@ -6,14 +6,14 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using dotnet_identity_sample.Extensions;
 using dotnet_identity_sample.Data;
+using dotnet_identity_sample.Extensions;
 
 namespace dotnet_identity_sample
 {
@@ -32,11 +32,11 @@ namespace dotnet_identity_sample
             services
                 .AddDbContext<ApplicationDbContext>(options =>
                     options
-                        .UseSqlite(Configuration
+                        .UseSqlServer(Configuration
                             .GetConnectionString("DefaultConnection")));
 
             services.AddControllers();
-            services.AddIdentityServices(Configuration);
+            services.AddIdentityServices (Configuration);
 
             services
                 .AddCors(opt =>
