@@ -30,7 +30,7 @@ steps:
     arguments: '--configuration $(BuildConfiguration) --output "$(build.artifactstagingdirectory)"'
 - task: CopyFiles@2
   inputs:
-    Contents: '**\*.db'
+    Contents: '*.db'
     TargetFolder: '$(build.artifactstagingdirectory)'
     flattenFolders: true
 - task: PublishBuildArtifacts@1
